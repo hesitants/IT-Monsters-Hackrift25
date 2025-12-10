@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZenFlow – Stress Check-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <h1>ZenFlow</h1>
+    <p>Quick stress check-in to see how you’re doing today 💛</p>
+  </header>
+
+  <main class="card">
+    <form id="stress-form">
+      <!-- Mood as emoji select -->
+      <div class="field">
+        <label>How are you feeling right now?</label>
+        <div id="emoji-select" class="emoji-row">
+          <span class="emoji-option" data-value="100">🥰</span>
+          <span class="emoji-option" data-value="60">😐</span>
+          <span class="emoji-option" data-value="40">😮</span>
+          <span class="emoji-option" data-value="20">😭</span>
+          <span class="emoji-option" data-value="10">😡</span>
+          <span class="emoji-option" data-value="5">🤢</span>
+        </div>
+        <input type="hidden" id="mood" value="60">
+      </div>
+
+      <div class="field">
+        <label for="screen_time">Screen time today (hours)</label>
+        <input type="range" id="screen_time" min="0" max="24" step="0.5" value="2">
+        <span id="screen_time_value">2</span> hours
+      </div>
+
+      <div class="field">
+        <label for="typing_test">Typing test (words per minute)</label>
+        <p>Type the following text as fast as you can:</p>
+        <p id="typing-text">The quick brown fox jumps over the lazy dog.</p>
+        <textarea id="typing_test" placeholder="Start typing here..." rows="3"></textarea>
+        <p>Speed: <span id="typing_speed_display">0</span> WPM</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Check my stress</button>
+    </form>
+
+    <!-- Result -->
+    <section id="result-card" class="result hidden">
+      <h2>Your stress check</h2>
+      <p class="score-text">
+        Stress score:
+        <span id="stress-score" class="score-number">–</span>
+      </p>
+      <p id="intervention-text" class="intervention"></p>
+
+      <!-- Stress Indicator Bar -->
+      <div class="stress-indicator">
+        <div class="indicator-labels">
+          <span>Low (0)</span>
+          <span>High (100)</span>
+        </div>
+        <div class="indicator-bar">
+          <div id="indicator-marker"></div>
+        </div>
+        <p id="stress-category" class="stress-category-text">–</p>
+      </div>
+
+      <p style="text-align:center;">Stress stats | Today</p>
+      <div class="chart-wrapper">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </section>
+
+    <p id="error-message" class="error hidden"></p>
+  </main>
+
+  <footer class="footer">
+    <p>This is a prototype for our hackathon project – not medical advice.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const screenTimeInput = document.getElementById("screen_time");
+const screenTimeValue = document.getElementById("screen_time_value");
+
+// Update the span whenever the slider moves
+screenTimeInput.addEventListener("input", () => {
+  screenTimeValue.textContent = screenTimeInput.value;
+});
+
+// Highlight the pre-selected emoji on page load
+const moodValue = document.getElementById("mood").value;
+document.querySelectorAll(".emoji-option").forEach(el => {
+  if (el.dataset.value === moodValue) {
+    el.classList.add("selected");
+  }
+});
+
+// --------------------
+// Typing test logic
+// --------------------
+const typingTest = document.getElementById("typing_test");
+const typingSpeedDisplay = document.getElementById("typing_speed_display");
+let startTime = null;
+
+function resetTypingTest() {
+  startTime = null;
+  typingSpeedDisplay.textContent = 0;
+}
+
+typingTest.addEventListener("input", () => {
+  const typedText = typingTest.value;
+
+  // Reset if user deletes everything
+  if (typedText.trim() === "") {
+    resetTypingTest();
+    return;
+  }
+
+  // Start timer on first keystroke
+  if (!startTime) startTime = new Date();
+
+  const elapsedMinutes = (new Date() - startTime) / 60000; // ms → minutes
+  const wordCount = typedText.trim().split(/\s+/).filter(Boolean).length;
+  const wpm = Math.round(wordCount / elapsedMinutes);
+
+  typingSpeedDisplay.textContent = isFinite(wpm) ? wpm : 0;
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ctx = document.getElementById("radarChart").getContext("2d");
+  const form = document.getElementById("stress-form");
+  const resultCard = document.getElementById("result-card");
+  const scoreEl = document.getElementById("stress-score");
+  const interventionEl = document.getElementById("intervention-text");
+  const indicatorMarker = document.getElementById("indicator-marker");
+  const stressCategory = document.getElementById("stress-category");
+
+  const labels = ["Mood", "Screen Time", "Typing Stress", "Overall Stress"];
+
+  // Colored background zones
+  const zoneBackground = [
+    { label: "Low Stress", data: [30,30,30,30], backgroundColor: "rgba(40, 167, 69, 0.2)", borderWidth: 0 },
+    { label: "Moderate Stress", data: [60,60,60,60], backgroundColor: "rgba(255, 206, 86, 0.2)", borderWidth: 0 },
+    { label: "High Stress", data: [80,80,80,80], backgroundColor: "rgba(255, 159, 64, 0.2)", borderWidth: 0 },
+    { label: "Very High Stress", data: [100,100,100,100], backgroundColor: "rgba(255, 99, 132, 0.2)", borderWidth: 0 }
+  ];
+
+  // Initialize radar chart
+  let radarChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: labels,
+      datasets: [
+        ...zoneBackground,
+        { label: "Your Stress", data: [0,0,0,0], backgroundColor: "rgba(0,123,255,0.2)", borderColor: "rgba(0, 123, 255, 1)", borderWidth: 2, pointBackgroundColor: "rgba(0,123,255,1)", fill: true }
+      ]
+    },
+    options: { responsive: true, scales: { r: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+  });
+
+  function chooseIntervention(score) {
+    const calm = ["You're calm! Keep it up.", "Everything seems smooth — enjoy the moment.", "Great job staying relaxed today!"];
+    const light = ["Try a quick 1-minute breathing exercise.", "Stretch your arms and shoulders for a minute.", "Take a short walk around the room."];
+    const medium = ["Take a 3-minute break away from your screen.", "Listen to a relaxing song.", "Try a short guided meditation."];
+    const high = ["High stress detected — take a 5-minute walk or hydration break.", "Step outside for fresh air and deep breaths.", "Do a short body scan to release tension."];
+
+    if (score < 30) return calm[Math.floor(Math.random()*calm.length)];
+    if (score < 60) return light[Math.floor(Math.random()*light.length)];
+    if (score < 80) return medium[Math.floor(Math.random()*medium.length)];
+    return high[Math.floor(Math.random()*high.length)];
+  }
+
+  // Emoji selection
+  document.querySelectorAll(".emoji-option").forEach(el => {
+    el.addEventListener("click", () => {
+      document.getElementById("mood").value = el.dataset.value;
+      document.querySelectorAll(".emoji-option").forEach(e => e.classList.remove("selected"));
+      el.classList.add("selected");
+    });
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const mood = parseInt(document.getElementById("mood").value);
+    const screen = parseFloat(document.getElementById("screen_time").value);
+    const typing = parseInt(typingSpeedDisplay.textContent) || 0;
+
+    const moodStress = 100 - mood;
+    const screenStress = Math.min(screen * 15, 100);
+    const typingStress = Math.min(Math.abs(100 - typing), 100);
+    const overallStress = Math.round((moodStress + screenStress + typingStress)/3);
+
+    const lastDatasetIndex = radarChart.data.datasets.length - 1;
+    radarChart.data.datasets[lastDatasetIndex].data = [moodStress, screenStress, typingStress, overallStress];
+    radarChart.update();
+
+    scoreEl.textContent = overallStress;
+    interventionEl.textContent = chooseIntervention(overallStress);
+    indicatorMarker.style.left = `${Math.min(overallStress, 100)}%`;
+
+    if (overallStress < 30) stressCategory.textContent = "Low Stress — you’re doing great!";
+    else if (overallStress < 60) stressCategory.textContent = "Normal Stress — totally fine.";
+    else if (overallStress < 80) stressCategory.textContent = "Moderate Stress — take a short break.";
+    else stressCategory.textContent = "High Stress — consider resting soon.";
+
+    resultCard.classList.remove("hidden");
+
+    // 🔹 Reset typing test
+    typingTest.value = "";
+    typingSpeedDisplay.textContent = 0;
+    startTime = null;
+  });
+});
+</script>
+
+</body>
+</html>

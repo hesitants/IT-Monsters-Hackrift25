@@ -1,0 +1,345 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top left, #6ee7b7, #3b82f6 40%, #111827);
+  color: #0f172a;
+}
+
+.app {
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+}
+
+.header {
+  text-align: center;
+  color: #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 35px 10px 48px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.7);
+  color: #e5e7eb;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 10px;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.95rem;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+input[type="range"] {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  color: #9ca3af;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 4px;
+  display: block;
+}
+
+.btn-primary {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  color: white;
+  font-weight: 600;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(30, 64, 175, 0.7);
+  opacity: 0.97;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.result {
+  margin-top: 18px;
+  padding: 14px 12px;
+  border-radius: 16px;
+  background: rgba(15, 118, 110, 0.25);
+  border: 1px solid rgba(45, 212, 191, 0.6);
+}
+
+.result h2 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.score-text {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.score-number {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-left: 4px;
+  color: #a5f3fc;
+}
+
+.intervention {
+  font-size: 0.9rem;
+  color: #d1fae5;
+}
+
+.error {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #fecaca;
+}
+
+.hidden {
+  display: none;
+}
+
+.footer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+
+.chart-wrapper {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    margin: 40px auto;
+}
+
+#radarChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.emoji {
+    position: absolute;
+    font-size: 32px;
+}
+
+
+.emoji-row {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.emoji-option {
+  font-size: 32px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.emoji-option:hover {
+  background: #f0f0f0;
+  transform: scale(1.15);
+}
+
+/* 🔥 When selected */
+.emoji-option.selected {
+  background: #ffd966;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 200, 0, 0.8);
+}
+
+
+.stress-indicator {
+  margin-top: 20px;
+  text-align: center;
+
+}
+
+.indicator-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+.indicator-bar {
+  position: relative;
+  height: 12px;
+  background: linear-gradient(to right, #6ee7b7, #facc15, #f97316, #ef4444);
+  border-radius: 6px;
+  margin: 10px 0;
+  width: 100%;     /* ensure full width */
+}
+
+#indicator-marker {
+  position: absolute;
+  top: -6px;
+  width: 10px;
+  height: 24px;
+  background: #f9f9f9;
+  border-radius: 3px;
+  transition: left 0.4s ease;   
+}
+
+
+.stress-category-text {
+  font-weight: bold;
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.chart-wrapper {
+  position: relative;
+  margin-bottom: 2rem; /* space for indicator */
+}
+
+.stress-indicator {
+  position: relative;
+  z-index: 10; /* make sure it’s above other elements if overlapping */
+}
+
+/* Style the slider container */
+.field {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style the label */
+.field label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+/* Display slider value nicely */
+#screen_time_value {
+  font-weight: 500;
+  color: #f7f7f7; /* blue accent */
+}
+
+/* Slider styling */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #ddd;
+  outline: none;
+  transition: background 0.3s;
+}
+
+/* Slider thumb */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0b4684;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  transition: background 0.3s, transform 0.2s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  background: #00a1b3;
+  transform: scale(1.1);
+}
+
+/* For Firefox */
+input[type=range]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f8fbff;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  transition: background 0.3s, transform 0.2s;
+}
+
+/* Track styling for Firefox */
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #ddd;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#screen_time_value {
+  min-width: 35px;
+  font-weight: 500;
+  color: #007bff;
+}
