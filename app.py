@@ -23,7 +23,7 @@ app = FastAPI(
 # Allow frontend (React / others) to call this API from another port
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # for hackathon/demo; you can restrict later
+    allow_origins=["*"],         
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -172,3 +172,4 @@ if __name__ == "__main__":
         port=8000,
         reload=True,   # auto-reload on code changes (great for development)
     )
+
